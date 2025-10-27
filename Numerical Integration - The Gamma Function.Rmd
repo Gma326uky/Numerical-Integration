@@ -1,0 +1,409 @@
+---
+title: "Numerical Integration: The Gamma Function"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+Let's write a function that will estimate the integral of a function from points
+a to b, and estimate the value using one of the 3 methods of estimation 
+(rectangle, trapezoid, or Simpson's), with k number of cutpoints specified.
+
+The 3 methods share the same k cutpoints, widths between points, and heights at 
+each cutpoint.
+
+
+```{r}
+
+# Function to estimate an the value of the integral of function 'f' from
+# points a to b using one of the 3 estimation methods.
+
+# Number of cutpoints 'k' and 'method' must be specified.
+integral_estimate <- function(f, a, b, k, method){
+  # Stop if the number of 'k' cutpoints specified is less than 2
+  if (k < 2){
+    stop("Number of points 'k' must be at least 2")
+  }
+  # Width of boxes
+  width <- (b - a) / (k - 1)
+  # All cutpoints
+  points <- seq(a, b, by = width)
+  # Heights at each cutpoint
+  heights <- f(points)
+  # Estimate using the rectangle method
+  if(method == "rectangle"){
+    estimate <- width * sum(heights[1:k-1])
+    # Estimate using the trapezoid method
+  } else if(method == "trapezoid"){
+    estimate <- (width / 2) * (heights[1] + heights[k] + 2*sum(heights[-c(1, k)]))
+    # Estimate using the Simpson's rule method
+  } else if(method == "simpson"){
+    # If the number of cutpoints is odd, estimate using Simpson's rule
+    if (k %% 2 != 0) {
+      # Simpson's rule estimate if the number of cutpoints is 3
+      if(k == 3){
+      estimate <- (width / 3) * (heights[1] + heights[k] + 4*heights[k-1])
+      # Simpson's rule estimate if the number of cutpoints is 5
+      } else if(k == 5){
+      estimate <- (width / 3) * (heights[1] + heights[k] + 4*sum(heights[seq(2, k-1, by = 2)]) + 2*heights[k-2])
+      # Simpson's rule estimate if the number of cutpoints is greater than 5
+      } else if(k > 5){
+      estimate <- (width / 3) * (heights[1] + heights[k] + 4*sum(heights[seq(2, k-1, by = 2)]) + 2*sum(heights[seq(3, k-2, by = 2)]))
+      }
+      # If the number of cutpoints is even, can't use Simpson's rule
+    } else if (k %% 2 == 0) {
+      stop("Number of points 'k' must be odd to use Simpson's rule")
+    }
+    # Stop if the 'method' specified is not valid, and list valid methods.
+  } else {
+    stop('Please specify method "rectangle", "trapezoid", or "simpson"')
+  }  
+  # Show the value of the estimate
+  print(estimate)
+}
+
+```
+
+
+Besides the inputs specified in the question, I also included the "method", 
+in which we can specify to use either "rectangle", "trapezoid", or "simpson" 
+to estimate the intergral using their respective rule.
+
+### TESTING
+
+## 1. 
+
+
+Let's use our function to estimate the integral for the exp(x) function from
+0 to 1 and compare it to the algebraic results. 
+
+Let's first check if the estimates of our function match what we should
+get using the rectangle and trapezoid for just 1 box (Note: Simpson's rule
+will use 3 cutpoints instead of 2, since the number of boxes is Simpson's rule
+is equal to (k - 1)/2 instead of k - 1 like the other methods).
+
+
+```{r}
+
+
+# Estimate using our function with the rectangle method
+integral_estimate(exp, 0, 1, 2, "rectangle")
+
+# Triangle rule for exp(x) from 0 to 1 with 2 cutpoints.
+(1 - 0) * exp(0)
+
+# Estimate using our function with the trapezoid method
+integral_estimate(exp, 0, 1, 2, "trapezoid")
+
+# Trapezoid rule for exp(x) from 0 to 1 with 2 cutpoints.
+1/2 * (exp(0) + exp (1))
+
+# Estimate using our function with the trapezoid method
+integral_estimate(exp, 0, 1, 3, "simpson")
+
+# Simpson's rule for exp(x) from 0 to 1 with 3 cutpoints.
+(1/6) * (exp(0) + 4*exp(1/2) + exp(1))
+
+```
+
+As we can see, our function yields the correct results for all 3 methods when 
+using 1 box to estimate the value of the integral, so the function seems to
+be working as intended for 1 box estimation.
+
+
+## 2.
+
+
+Let's now check if the estimates of our function match what we should get using 
+the rectangle, trapezoid, and Simpson's method using 2 boxes.
+
+
+```{r}
+
+# Estimate using our function with the rectangle method
+integral_estimate(exp, 0, 1, 3, "rectangle")
+
+# Triangle rule for exp(x) from 0 to 1 with 3 cutpoints.
+(1/2) * (exp(0) + exp(0.5))
+
+# Estimate using our function with the trapezoid method
+integral_estimate(exp, 0, 1, 3, "trapezoid")
+
+# Trapezoid rule for exp(x) from 0 to 1 with 3 cutpoints.
+(1/4) * (exp(0) + 2*exp (.5) + exp (1))
+
+# Estimate using our function with Simpson's method
+integral_estimate(exp, 0, 1, 5, "simpson")
+
+# Simpson's rule for exp(x) from 0 to 1 with 5 cutpoints.
+(1/12) * (exp(0) + 4*exp(1/4) + 2*exp(1/2) + 4*exp(3/4) + exp(1))
+
+
+```
+
+As we can see, our function yields the correct results for all 3 methods when 
+using 2 boxes to estimate the value fo the integral, so the function seems to be
+working as intended for 2 box estimation.
+
+
+## 3.
+
+
+Let's check what the true value of the integral of exp(x) from 0 to 1 is.
+
+
+```{r}
+
+# Integrate exp(x) function from 0 to 1
+integrate(exp, 0, 1)
+
+```
+
+Now let's look at which of the methods yields the closest value to this when
+using k = 11 number of cutpoints.
+
+
+```{r}
+
+# Estimates of integral of exp(x) from 0 to 1 using all 3 methods with k = 11
+
+# Estimate using our function with the rectangle method
+integral_estimate(exp, 0, 1, 11, "rectangle")
+
+# Estimate using our function with the trapezoid method
+integral_estimate(exp, 0, 1, 11, "trapezoid")
+
+# Estimate using our function with Simpson's rule method
+integral_estimate(exp, 0, 1, 11, "simpson")
+
+```
+
+As we can see from our results, Simpson's method is the closest to the true 
+value for the integral of exp(x) from o to 1.
+
+
+# Gamma Function
+
+
+Let's create our gamma function whose integral we wish to estimate.
+
+
+```{r}
+
+# Gamma function for any constant alpha
+gamma_function <- function(x, alpha){
+    (x^(alpha-1))*exp(-x)
+}
+
+```
+
+
+## 1. 
+
+
+Now let's plot our function for x from 0 to 20 to show the shape of the function, 
+and from 0 to 10,000 to show the trend to infinity. 
+
+We will also look at the value of the integral for our function from 0 to 10,000 
+to estimate what it would be from 0 to infinity.
+
+we will do this for alpha = 1 first.
+
+
+```{r}
+
+# Plot of gamma function for x from 0 to 20 when alpha = 1
+curve(gamma_function(x, 1), from = 0, to = 20)
+
+# Plot of gamma function for x from 0 to 10,000 when alpha = 1
+curve(gamma_function(x, 1), from = 0, to = 10000)
+
+# Integral of gamma function from 0 to 10,000 when alpha = 1
+integrate(gamma_function, lower = 0, upper = 10000, alpha = 1)
+
+```
+
+As we can see, the value of the integral should be equal to 1.
+
+Now let's do the same plots for alpha = 2.
+
+
+```{r}
+
+# Plot of gamma function for x from 0 to 20 when alpha = 2
+curve(gamma_function(x, 2), from = 0, to = 20)
+
+# Plot of gamma function for x from 0 to 10,000 when alpha = 2
+curve(gamma_function(x, 2), from = 0, to = 10000)
+
+# Integral of gamma function from 0 to 10,000 when alpha = 2
+integrate(gamma_function, lower = 0, upper = 10000, alpha = 2)
+
+```
+
+As we can see, the value of the integral should be equal to 1 as well.
+
+
+## 2. 
+
+
+Let's use out function for integral estimation to estimate the integral from
+0 to 10,000 (to approximate infinity) of our gamma function when alpha = 1.
+
+We will use the trapezoid method for this, using 3 trapezoids (k = 4). Since
+we will be using this function to estimate the integral for the gamma function
+for different values of alpha, I adjusted my integral estimation formula so
+that the value of alpha can be included in the inputs.
+
+```{r}
+
+# Number of cutpoints 'k' and 'method' must be specified, 'alpha' is optional
+integral_estimate_alpha <- function(f, a, b, k, method, alpha = "None"){
+  # Stop if the number of 'k' cutpoints specified is less than 2
+  if (k < 2){
+    stop("Number of points 'k' must be at least 2")
+  }
+  # Width of boxes
+  width <- (b - a) / (k - 1)
+  # All cutpoints
+  points <- seq(a, b, by = width)
+  # Heights at each cutpoint if alpha is not specified
+  if (alpha == "None"){
+  heights <- f(points)
+  # Heights at each cutpoint if alpha is specified
+  } else {
+  heights <- f(points, alpha)  
+  }
+  # Estimate using the rectangle method
+  if(method == "rectangle"){
+    estimate <- width * sum(heights[1:k-1])
+    # Estimate using the trapezoid method
+  } else if(method == "trapezoid"){
+    estimate <- (width / 2) * (heights[1] + heights[k] + 2*sum(heights[-c(1, k)]))
+    # Estimate using the Simpson's rule method
+  } else if(method == "simpson"){
+    # If the number of cutpoints is odd, estimate using Simpson's rule
+    if (k %% 2 != 0) {
+      # Simpson's rule estimate if the number of cutpoints is 3
+      if(k == 3){
+      estimate <- (width / 3) * (heights[1] + heights[k] + 4*heights[k-1])
+      # Simpson's rule estimate if the number of cutpoints is 5
+      } else if(k == 5){
+      estimate <- (width / 3) * (heights[1] + heights[k] + 4*sum(heights[seq(2, k-1, by = 2)]) + 2*heights[k-2])
+      # Simpson's rule estimate if the number of cutpoints is greater than 5
+      } else if(k > 5){
+      estimate <- (width / 3) * (heights[1] + heights[k] + 4*sum(heights[seq(2, k-1, by = 2)]) + 2*sum(heights[seq(3, k-2, by = 2)]))
+      }
+      # If the number of cutpoints is even, can't use Simpson's rule
+    } else if (k %% 2 == 0) {
+      stop("Number of points 'k' must be odd to use Simpson's rule")
+    }
+    # Stop if the 'method' specified is not valid, and list valid methods.
+  } else {
+    stop('Please specify method "rectangle", "trapezoid", or "simpson"')
+  }  
+  # Show the value of the estimate
+  print(estimate)
+}
+
+```
+
+
+Now that we have a new function for integral estimation, let's use it for our
+estimate.
+
+
+```{r}
+
+# Integral estimate for gamma function with alpha = 1 from 0 to 10,000
+# Using the trapezoid method with k = 4
+integral_estimate_alpha(gamma_function, 0, 10000, 4, "trapezoid", alpha = 1)
+
+```
+
+## 3.
+
+
+Using only 3 trapezoids, we got that the value of the integral is very large, 
+which is incorrect given that we know the correct value is 1. Let's try doing 
+this estimation again with different values of k until we approach 1.
+
+
+```{r}
+
+# Integral estimate for gamma function with alpha = 1 from 0 to 10,000
+# Using the trapezoid method with k = 10,000
+integral_estimate_alpha(gamma_function, 0, 10000, 10000, "trapezoid", alpha = 1)
+
+# Integral estimate for gamma function with alpha = 1 from 0 to 10,000
+# Using the trapezoid method with k = 1,000,000
+integral_estimate_alpha(gamma_function, 0, 10000, 1000000, "trapezoid", alpha = 1)
+
+# Integral estimate for gamma function with alpha = 1 from 0 to 10,000
+# Using the trapezoid method with k = 50,000,000
+integral_estimate_alpha(gamma_function, 0, 10000, 50000000, "trapezoid", alpha = 1)
+
+```
+
+We can see that as our number of k cutpoints becomes larger, the value of our
+estimate gets closer to the true value of 1, with it being 1 at k = 50,000,000.
+
+
+## 4.
+
+
+Using our integral estimation function with k = 50,000,000, let's estimate
+the same integral for the gamma function for other integer values of alpha.
+
+We will do this for alpha = 2, 3, 4, 5, and 6.
+
+
+```{r}
+
+# Integral estimate for gamma function with alpha = 2
+integral_estimate_alpha(gamma_function, 0, 10000, 50000000, "trapezoid", alpha = 2)
+
+# Integral estimate for gamma function with alpha = 3
+integral_estimate_alpha(gamma_function, 0, 10000, 50000000, "trapezoid", alpha = 3)
+
+# Integral estimate for gamma function with alpha = 4
+integral_estimate_alpha(gamma_function, 0, 10000, 50000000, "trapezoid", alpha = 4)
+
+# Integral estimate for gamma function with alpha = 5
+integral_estimate_alpha(gamma_function, 0, 10000, 50000000, "trapezoid", alpha = 5)
+
+# Integral estimate for gamma function with alpha = 6
+integral_estimate_alpha(gamma_function, 0, 10000, 50000000, "trapezoid", alpha = 6)
+
+```
+
+
+- Based on the estimates of these integrals at different levels of alpha, we can
+see the following pattern:
+
+
+Integral of gamma (alpha = 2) = 1 = 1x1 = 1*[Integral of gamma (alpha = 1)]
+
+Integral of gamma (alpha = 3) = 2 = 2x1 = 2*[Integral of gamma (alpha = 2)]
+
+Integral of gamma (alpha = 4) = 6 = 3x2 = 3*[Integral of gamma (alpha = 3)]
+
+Integral of gamma (alpha = 5) = 24 = 4x6 = 4*[Integral of gamma (alpha = 4)]
+
+Integral of gamma (alpha = 6) = 120 = 5x24 = 5*[Integral of gamma (alpha = 5)]
+
+
+- This can be expressed the following way, for any positive value of a:
+
+
+Integral of gamma (alpha = a + 1) = a*[Integral of gamma (alpha = a)]
+
+
+
+
+
+
+
+
+
