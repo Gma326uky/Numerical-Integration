@@ -35,11 +35,11 @@ $$(width / 3) * (heights[1] + heights[k] + 4*heights[k-1])$$
 
 For k = 5 cutpoints:
 
-$$(width / 3) * (heights[1] + heights[k] + 4*sum(heights[seq(2, k-1, by = 2)]) + 2*heights[k-2])$$
+$$(width / 3) * (heights[1] + heights[k] + 4 * (sum(heights[seq(2, k-1, by = 2)])) + 2*heights[k-2])$$
 
 For k > 5 cutpoints:
 
-$$(width / 3) * (heights[1] + heights[k] + 4*sum(heights[seq(2, k-1, by = 2)]) + 2*sum(heights[seq(3, k-2, by = 2)]))$$
+$$(width / 3) * (heights[1] + heights[k] + 4 * (sum(heights[seq(2, k-1, by = 2)])) + 2 * (sum(heights[seq(3, k-2, by = 2)])))$$
 
 Finally, the function will print the specified estimate.
 
@@ -101,7 +101,7 @@ When estimated the gamma function with alpha = 1 at using different cutpoints, I
 
 After looking at the integral from 0 to Infinity of the gamma function at different integer values of alpha, I found that the result of each subsequent value of alpha could be expressed with the following formula:
 
-$$Integral~of~gamma (alpha = a + 1) = a*[Integral~of~gamma (alpha = a)]$$
+$$Integral-of-gamma (alpha = a + 1) = a*[Integral-of-gamma (alpha = a)]$$
 
 This can be also expressed by saying:
 
