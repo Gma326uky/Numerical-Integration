@@ -49,7 +49,7 @@ This testing, as well as the following estimation of the Gamma function, can be 
 
 After determining my function was working as intended, I moved on to use it on the gamma function, which I specified to be the following:
 
-$$(x^(alpha-1))*exp(-x)$$
+$$(x^{alpha-1})*exp(-x)$$
 
 
 The first thing I did was plot a curve of this function at alpha = 1 and alpha = 2 to see its behavior from 0 to infinity (approximating the behavior to infinity by specifying 10,000 as the upper bound).
@@ -101,7 +101,7 @@ When estimated the gamma function with alpha = 1 at using different cutpoints, I
 
 After looking at the integral from 0 to Infinity of the gamma function at different integer values of alpha, I found that the result of each subsequent value of alpha could be expressed with the following formula:
 
-$$Integral-of-gamma (alpha = a + 1) = a*[Integral-of-gamma (alpha = a)]$$
+$$Integral~of~gamma (alpha = a + 1) = a*[Integral~of~gamma (alpha = a)]$$
 
 This can be also expressed by saying:
 
